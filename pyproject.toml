@@ -1,0 +1,66 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sentinelforge"
+description = "A security investigation and digital forensics platform for analysing untrusted evidence."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+keywords = ["security", "forensics", "dfir", "incident-response", "malware-analysis"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+]
+
+# The version lives in src/sentinelforge/__init__.py so there is exactly one
+# place to change it; hatchling reads it from there at build time.
+dynamic = ["version"]
+
+# SentinelForge deliberately has no runtime third-party dependencies.
+# A forensics tool that pulls in nothing has a supply chain an analyst can audit
+# in a single glance, which matters when the tool handles hostile evidence.
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+sentinelforge = "sentinelforge.cli:main"
+
+[tool.hatch.version]
+path = "src/sentinelforge/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sentinelforge"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # import sorting
+    "B",   # bugbear
+    "UP",  # pyupgrade
+    "S",   # flake8-bandit: security anti-patterns (shell=True, eval, weak hashes)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# assert is how pytest works; S101 is only meaningful in shipped code.
+"tests/*" = ["S101"]

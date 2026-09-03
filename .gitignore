@@ -1,0 +1,49 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+
+# --- Testing and tooling caches ---
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# --- Secrets ---
+# Threat-intelligence API keys (VirusTotal, MalwareBazaar) arrive in v0.3.
+# Ignoring these now means there is never a commit where a key could slip in.
+.env
+.env.*
+*.key
+secrets.json
+
+# --- Investigation output ---
+# Reports embed absolute paths, file names and timestamps from the machine that
+# ran the investigation. That is analyst PII and case data, not source code.
+reports/*
+!reports/.gitkeep
+
+# --- Evidence samples ---
+# Never commit real or simulated malicious files. GitHub scans for them, local
+# antivirus quarantines them, and a cloned repo should never arm the cloner.
+# See sample_evidence/README.md for generating safe fixtures locally.
+sample_evidence/*
+!sample_evidence/README.md
+
+# --- Editors and OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini

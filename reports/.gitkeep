@@ -1,0 +1,3 @@
+# Default output directory for generated investigation reports.
+# Tracked so the directory exists on a fresh clone; its contents are git-ignored
+# because reports embed absolute paths and case data from the analyst's machine.

@@ -1,0 +1,129 @@
+"""Command-line interface for SentinelForge.
+
+This module only parses arguments, configures logging, and dispatches to a
+handler. Analysis lives in :mod:`sentinelforge.analyzers` and rendering lives in
+:mod:`sentinelforge.reporting`, so the CLI stays a thin, readable shell around
+an engine that can also be driven from Python.
+
+Built on :mod:`argparse` from the standard library. Sub-commands already model
+what the roadmap needs (``analyze`` now; ``logs`` and ``pcap`` later), and a
+security tool with zero runtime dependencies is easier to trust and to install.
+"""
+
+from __future__ import annotations
+
+import argparse
+import logging
+from collections.abc import Sequence
+from pathlib import Path
+
+from sentinelforge import __version__
+from sentinelforge.exceptions import SentinelForgeError
+from sentinelforge.utils.logging_config import configure_logging
+
+log = logging.getLogger(__name__)
+
+# Distinct exit codes so scripts can tell "you asked wrong" from "it went
+# wrong". argparse already exits 2 on usage errors, so that value is reserved.
+EXIT_OK = 0
+EXIT_ERROR = 1
+EXIT_USAGE = 2
+
+DESCRIPTION = "Analyse untrusted evidence and produce a structured investigation result."
+
+EPILOG = (
+    "SentinelForge reads evidence as bytes. It never executes, imports, or opens "
+    "the files it analyses, and it never uploads them anywhere."
+)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    """Construct the top-level parser and its sub-commands.
+
+    Kept separate from :func:`main` so tests can inspect the parser directly
+    and so ``--help`` output can be checked without running an investigation.
+    """
+    parser = argparse.ArgumentParser(
+        prog="sentinelforge",
+        description=DESCRIPTION,
+        epilog=EPILOG,
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"sentinelforge {__version__}",
+    )
+
+    # Mutually exclusive: "-q -v" is a contradiction, so argparse should reject
+    # it rather than leave us guessing which one the analyst meant.
+    verbosity = parser.add_mutually_exclusive_group()
+    verbosity.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="increase log detail (-v for progress, -vv for debug)",
+    )
+    verbosity.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="suppress everything except errors",
+    )
+
+    subparsers = parser.add_subparsers(dest="command", metavar="<command>")
+
+    analyze = subparsers.add_parser(
+        "analyze",
+        help="analyse a single file of evidence",
+        description="Analyse a single file and report hashes, metadata and findings.",
+        epilog=EPILOG,
+    )
+    analyze.add_argument(
+        "path",
+        type=Path,
+        help="path to the file to analyse",
+    )
+    analyze.set_defaults(handler=handle_analyze)
+
+    return parser
+
+
+def handle_analyze(args: argparse.Namespace) -> int:
+    """Handle ``sentinelforge analyze <path>``.
+
+    Registered now so the command surface is visible in ``--help`` and covered
+    by tests. The implementation arrives with evidence validation and hashing.
+    """
+    raise SentinelForgeError(
+        f"the 'analyze' command is not implemented yet (requested: {args.path})"
+    )
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Run the CLI and return a process exit code.
+
+    Returns rather than calls ``sys.exit`` so tests can invoke it as an ordinary
+    function; ``__main__.py`` turns the return value into the real exit status.
+
+    ``argv`` defaults to ``None``, which lets argparse read ``sys.argv``.
+    """
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    configure_logging(args.verbose, quiet=args.quiet)
+
+    handler = getattr(args, "handler", None)
+    if handler is None:
+        parser.print_help()
+        return EXIT_USAGE
+
+    try:
+        return handler(args)
+    except SentinelForgeError as exc:
+        # Expected failures get one clear line. Unexpected exceptions are
+        # deliberately not caught: a bug in the engine must be loud, because a
+        # forensics tool that hides its own faults cannot be trusted to say
+        # "nothing suspicious found".
+        log.error("%s", exc)
+        return EXIT_ERROR
