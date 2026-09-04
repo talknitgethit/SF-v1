@@ -10,8 +10,8 @@ import logging
 
 import pytest
 
-import sentinelforge
-from sentinelforge.cli import EXIT_ERROR, EXIT_USAGE, build_parser, main
+import sentrytrace
+from sentrytrace.cli import EXIT_ERROR, EXIT_USAGE, build_parser, main
 
 
 def test_help_exits_cleanly_and_lists_analyze(run_cli) -> None:
@@ -19,18 +19,18 @@ def test_help_exits_cleanly_and_lists_analyze(run_cli) -> None:
 
     assert result.exit_code == 0
     assert "analyze" in result.stdout
-    assert "sentinelforge" in result.stdout
+    assert "sentrytrace" in result.stdout
 
 
 def test_version_reports_the_package_version(run_cli) -> None:
     result = run_cli("--version")
 
     assert result.exit_code == 0
-    assert sentinelforge.__version__ in result.stdout
+    assert sentrytrace.__version__ in result.stdout
 
 
 def test_no_arguments_prints_help_and_signals_usage_error(run_cli) -> None:
-    """Bare ``sentinelforge`` should teach, not fail silently."""
+    """Bare ``sentrytrace`` should teach, not fail silently."""
     result = run_cli()
 
     assert result.exit_code == EXIT_USAGE
@@ -91,7 +91,7 @@ def test_logging_never_contaminates_stdout(run_cli, tmp_path) -> None:
 
 
 def test_unexpected_exceptions_are_not_swallowed(monkeypatch, run_cli) -> None:
-    """Only SentinelForgeError is handled; real bugs must stay loud.
+    """Only SentryTraceError is handled; real bugs must stay loud.
 
     A forensics tool that catches everything can report "no findings" when it
     actually crashed, and the analyst cannot tell the difference.
@@ -100,7 +100,7 @@ def test_unexpected_exceptions_are_not_swallowed(monkeypatch, run_cli) -> None:
     def exploding_handler(_args):
         raise RuntimeError("engine fault")
 
-    monkeypatch.setattr("sentinelforge.cli.handle_analyze", exploding_handler)
+    monkeypatch.setattr("sentrytrace.cli.handle_analyze", exploding_handler)
 
     with pytest.raises(RuntimeError, match="engine fault"):
         main(["analyze", "evidence.bin"])
@@ -128,4 +128,4 @@ def test_parser_defaults_are_sane() -> None:
 def test_verbosity_flags_set_the_log_level(run_cli, argv, expected_level) -> None:
     run_cli(*argv)
 
-    assert logging.getLogger("sentinelforge").level == expected_level
+    assert logging.getLogger("sentrytrace").level == expected_level

@@ -1,8 +1,8 @@
-# SentinelForge
+# SentryTrace
 
 A security investigation and digital forensics platform written in Python.
 
-SentinelForge takes untrusted evidence, analyses it without ever running it, and
+SentryTrace takes untrusted evidence, analyses it without ever running it, and
 produces a structured investigation result: identifying hashes, filesystem
 metadata, and rule-based findings with an explained severity.
 
@@ -20,7 +20,7 @@ else's API and call it detection, or they hard-code a list of bad hashes and
 call it intelligence. Neither teaches you much, and neither survives a question
 from an experienced reviewer.
 
-SentinelForge is an attempt at the opposite. It is built around ideas that
+SentryTrace is an attempt at the opposite. It is built around ideas that
 actually matter in digital forensics and incident response:
 
 - **Evidence is hostile.** It gets read as bytes and nothing else. No execution,
@@ -49,9 +49,9 @@ Being precise about this is part of the point:
 ## Architecture
 
 ```
-src/sentinelforge/
+src/sentrytrace/
 ├── cli.py               argument parsing and dispatch only
-├── exceptions.py        errors SentinelForge raises on purpose
+├── exceptions.py        errors SentryTrace raises on purpose
 ├── core/                what an investigation is
 │   ├── evidence.py      validated, untrusted-input intake
 │   ├── models.py        Finding, Severity, InvestigationResult    (planned)
@@ -94,8 +94,8 @@ on the standard library. `pytest` and `ruff` are development-only.
 ## Installation
 
 ```bash
-git clone https://github.com/<your-username>/sentinelforge.git
-cd sentinelforge
+git clone https://github.com/<your-username>/sentrytrace.git
+cd sentrytrace
 
 python -m venv .venv
 source .venv/bin/activate      # Windows: .\.venv\Scripts\Activate.ps1
@@ -106,17 +106,17 @@ pip install -e ".[dev]"
 ## Usage
 
 ```bash
-sentinelforge --help
-sentinelforge --version
+sentrytrace --help
+sentrytrace --version
 
 # equivalent, and works without the console script on PATH:
-python -m sentinelforge --help
+python -m sentrytrace --help
 ```
 
 ### Example investigation
 
 ```console
-$ sentinelforge analyze sample_evidence/invoice.pdf.exe
+$ sentrytrace analyze sample_evidence/invoice.pdf.exe
 File Information
 ----------------
   Name       invoice.pdf.exe
@@ -134,8 +134,8 @@ Hashes
 Failures are reported as one line on stderr, with a non-zero exit code:
 
 ```console
-$ sentinelforge analyze /etc
-ERROR sentinelforge.cli: /etc is a directory; SentinelForge analyses one file at a time
+$ sentrytrace analyze /etc
+ERROR sentrytrace.cli: /etc is a directory; SentryTrace analyses one file at a time
 ```
 
 Global options:

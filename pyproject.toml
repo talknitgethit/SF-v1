@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "sentinelforge"
+name = "sentrytrace"
 description = "A security investigation and digital forensics platform for analysing untrusted evidence."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -19,11 +19,11 @@ classifiers = [
     "Topic :: Security",
 ]
 
-# The version lives in src/sentinelforge/__init__.py so there is exactly one
+# The version lives in src/sentrytrace/__init__.py so there is exactly one
 # place to change it; hatchling reads it from there at build time.
 dynamic = ["version"]
 
-# SentinelForge deliberately has no runtime third-party dependencies.
+# SentryTrace deliberately has no runtime third-party dependencies.
 # A forensics tool that pulls in nothing has a supply chain an analyst can audit
 # in a single glance, which matters when the tool handles hostile evidence.
 dependencies = []
@@ -35,13 +35,13 @@ dev = [
 ]
 
 [project.scripts]
-sentinelforge = "sentinelforge.cli:main"
+sentrytrace = "sentrytrace.cli:main"
 
 [tool.hatch.version]
-path = "src/sentinelforge/__init__.py"
+path = "src/sentrytrace/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/sentinelforge"]
+packages = ["src/sentrytrace"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

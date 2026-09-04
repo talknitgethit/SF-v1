@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from sentinelforge.cli import main
+from sentrytrace.cli import main
 
 
 @dataclass(frozen=True)

@@ -1,8 +1,8 @@
-"""Command-line interface for SentinelForge.
+"""Command-line interface for SentryTrace.
 
 This module only parses arguments, configures logging, and dispatches to a
-handler. Analysis lives in :mod:`sentinelforge.analyzers` and rendering lives in
-:mod:`sentinelforge.reporting`, so the CLI stays a thin, readable shell around
+handler. Analysis lives in :mod:`sentrytrace.analyzers` and rendering lives in
+:mod:`sentrytrace.reporting`, so the CLI stays a thin, readable shell around
 an engine that can also be driven from Python.
 
 Built on :mod:`argparse` from the standard library. Sub-commands already model
@@ -17,12 +17,12 @@ import logging
 from collections.abc import Sequence
 from pathlib import Path
 
-from sentinelforge import __version__
-from sentinelforge.analyzers.hashing import hash_file
-from sentinelforge.core.evidence import Evidence
-from sentinelforge.exceptions import SentinelForgeError
-from sentinelforge.reporting.console import render_sections
-from sentinelforge.utils.logging_config import configure_logging
+from sentrytrace import __version__
+from sentrytrace.analyzers.hashing import hash_file
+from sentrytrace.core.evidence import Evidence
+from sentrytrace.exceptions import SentryTraceError
+from sentrytrace.reporting.console import render_sections
+from sentrytrace.utils.logging_config import configure_logging
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ EXIT_USAGE = 2
 DESCRIPTION = "Analyse untrusted evidence and produce a structured investigation result."
 
 EPILOG = (
-    "SentinelForge reads evidence as bytes. It never executes, imports, or opens "
+    "SentryTrace reads evidence as bytes. It never executes, imports, or opens "
     "the files it analyses, and it never uploads them anywhere."
 )
 
@@ -47,14 +47,14 @@ def build_parser() -> argparse.ArgumentParser:
     and so ``--help`` output can be checked without running an investigation.
     """
     parser = argparse.ArgumentParser(
-        prog="sentinelforge",
+        prog="sentrytrace",
         description=DESCRIPTION,
         epilog=EPILOG,
     )
     parser.add_argument(
         "--version",
         action="version",
-        version=f"sentinelforge {__version__}",
+        version=f"sentrytrace {__version__}",
     )
 
     # Mutually exclusive: "-q -v" is a contradiction, so argparse should reject
@@ -98,7 +98,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def handle_analyze(args: argparse.Namespace) -> int:
-    """Handle ``sentinelforge analyze <path>``.
+    """Handle ``sentrytrace analyze <path>``.
 
     Validate the path, run the analysers, print the result. Assembling the
     sections here is temporary: it moves into the investigator once there is an
@@ -147,7 +147,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     try:
         return handler(args)
-    except SentinelForgeError as exc:
+    except SentryTraceError as exc:
         # Expected failures get one clear line. Unexpected exceptions are
         # deliberately not caught: a bug in the engine must be loud, because a
         # forensics tool that hides its own faults cannot be trusted to say

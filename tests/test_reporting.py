@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from sentinelforge.reporting.console import render_sections
+from sentrytrace.reporting.console import render_sections
 
 
 def test_renders_a_titled_section_with_underline() -> None:

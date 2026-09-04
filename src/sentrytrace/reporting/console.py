@@ -4,7 +4,7 @@ Pure formatting. This module knows how to lay out titled sections of labelled
 values; it knows nothing about hashes, severity, or what any of it means. That
 separation is what stops presentation choices from ever changing a result.
 
-Every report format SentinelForge produces is ultimately a sequence of titled
+Every report format SentryTrace produces is ultimately a sequence of titled
 sections, so this shape holds as the investigation result grows.
 """
 

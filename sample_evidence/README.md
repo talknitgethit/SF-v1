@@ -20,7 +20,7 @@ engines, and it will — on your machine and on everyone else's.
 ## Generating safe fixtures
 
 Anything you need for manual testing can be created in a couple of lines. These
-files are inert: the extensions are what make them interesting to SentinelForge,
+files are inert: the extensions are what make them interesting to SentryTrace,
 and nothing here is ever executed.
 
 ```bash

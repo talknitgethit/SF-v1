@@ -20,7 +20,7 @@ jobs:
       # first. Cross-platform bugs usually show up on exactly one row.
       fail-fast: false
       matrix:
-        # SentinelForge reads filesystem timestamps, and the operating systems
+        # SentryTrace reads filesystem timestamps, and the operating systems
         # genuinely disagree: macOS and Windows expose a real file creation
         # time, Linux ext4 does not. Testing all three is how that stays honest.
         os: [ubuntu-latest, windows-latest, macos-latest]

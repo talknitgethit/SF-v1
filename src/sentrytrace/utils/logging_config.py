@@ -1,9 +1,9 @@
-"""Logging setup for the SentinelForge command-line application.
+"""Logging setup for the SentryTrace command-line application.
 
 Two rules drive this module.
 
 **Logs go to stderr, never stdout.** stdout belongs to investigation output. Once
-``analyze --json`` exists, ``sentinelforge analyze evidence.bin --json | jq``
+``analyze --json`` exists, ``sentrytrace analyze evidence.bin --json | jq``
 has to stay valid no matter how much logging is switched on. Mixing a log line
 into that stream corrupts the report.
 
@@ -18,7 +18,7 @@ import logging
 import sys
 from typing import TextIO
 
-PACKAGE_LOGGER = "sentinelforge"
+PACKAGE_LOGGER = "sentrytrace"
 
 LOG_FORMAT = "%(asctime)s %(levelname)-8s %(name)s: %(message)s"
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
@@ -58,7 +58,7 @@ def configure_logging(
     quiet: bool = False,
     stream: TextIO | None = None,
 ) -> logging.Logger:
-    """Attach a stderr handler to the ``sentinelforge`` logger and return it.
+    """Attach a stderr handler to the ``sentrytrace`` logger and return it.
 
     Configures the package logger rather than the root logger. Reconfiguring
     the root logger would silently change logging for anything else running in

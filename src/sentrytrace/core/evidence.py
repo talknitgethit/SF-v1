@@ -1,6 +1,6 @@
 """Evidence intake: the trust boundary between the analyst and the engine.
 
-Everything SentinelForge analyses arrives as a path typed by a human or handed
+Everything SentryTrace analyses arrives as a path typed by a human or handed
 over by another program. This module is the one place that turns such a path
 into something the rest of the codebase is allowed to touch.
 
@@ -19,7 +19,7 @@ import stat as stat_module
 from dataclasses import dataclass
 from pathlib import Path
 
-from sentinelforge.exceptions import EvidenceError
+from sentrytrace.exceptions import EvidenceError
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class Evidence:
     named in the final report is the file that was validated.
 
     Only the facts established during validation live here. Richer filesystem
-    metadata is the job of :mod:`sentinelforge.analyzers.metadata`.
+    metadata is the job of :mod:`sentrytrace.analyzers.metadata`.
     """
 
     path: Path
@@ -73,7 +73,7 @@ class Evidence:
     ) -> Evidence:
         """Validate ``raw_path`` and return accepted :class:`Evidence`.
 
-        Raises :class:`~sentinelforge.exceptions.EvidenceError` with a message
+        Raises :class:`~sentrytrace.exceptions.EvidenceError` with a message
         written for an analyst, not a stack trace, whenever the path cannot be
         accepted.
 
@@ -134,7 +134,7 @@ class Evidence:
         tool must not be stoppable by handing it the wrong kind of path.
         """
         if stat_module.S_ISDIR(mode):
-            raise EvidenceError(f"{path} is a directory; SentinelForge analyses one file at a time")
+            raise EvidenceError(f"{path} is a directory; SentryTrace analyses one file at a time")
         if not stat_module.S_ISREG(mode):
             raise EvidenceError(
                 f"{path} is not a regular file; sockets, pipes and device files "

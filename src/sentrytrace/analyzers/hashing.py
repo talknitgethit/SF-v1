@@ -20,13 +20,13 @@ import hashlib
 import logging
 from collections.abc import Iterable, Mapping
 
-from sentinelforge.core.evidence import Evidence
-from sentinelforge.exceptions import EvidenceError
+from sentrytrace.core.evidence import Evidence
+from sentrytrace.exceptions import EvidenceError
 
 log = logging.getLogger(__name__)
 
 PRIMARY_ALGORITHM = "sha256"
-"""The digest SentinelForge treats as the file's forensic identity."""
+"""The digest SentryTrace treats as the file's forensic identity."""
 
 DEFAULT_ALGORITHMS: tuple[str, ...] = ("md5", "sha1", "sha256")
 """Digests computed for every investigation, in report order."""
@@ -53,11 +53,11 @@ def hash_file(
     would mean reading the bytes three times, and on a large image held on a
     slow or write-blocked forensic disk, I/O is the entire cost of the operation.
 
-    Takes :class:`~sentinelforge.core.evidence.Evidence` rather than a path, so
+    Takes :class:`~sentrytrace.core.evidence.Evidence` rather than a path, so
     the type signature itself records that this function only ever runs on input
     that has already cleared validation.
 
-    Raises :class:`~sentinelforge.exceptions.EvidenceError` if the file becomes
+    Raises :class:`~sentrytrace.exceptions.EvidenceError` if the file becomes
     unreadable mid-read, and ``ValueError`` for an unknown algorithm name.
     """
     hashers = {name: _new_hasher(name) for name in algorithms}
@@ -108,7 +108,7 @@ def _new_hasher(name: str):
     and SHA-1 are being used as identifiers rather than as security primitives.
     That is not decoration: on a system running in FIPS mode the interpreter
     refuses to construct an MD5 hasher without it, so omitting it would make
-    SentinelForge fail outright on exactly the kind of hardened machine a
+    SentryTrace fail outright on exactly the kind of hardened machine a
     responder is likely to be working from.
     """
     try:

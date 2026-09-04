@@ -12,8 +12,8 @@ from pathlib import Path
 
 import pytest
 
-from sentinelforge.core.evidence import Evidence
-from sentinelforge.exceptions import EvidenceError
+from sentrytrace.core.evidence import Evidence
+from sentrytrace.exceptions import EvidenceError
 
 
 @pytest.fixture

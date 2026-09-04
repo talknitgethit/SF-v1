@@ -13,14 +13,14 @@ from pathlib import Path
 
 import pytest
 
-from sentinelforge.analyzers.hashing import (
+from sentrytrace.analyzers.hashing import (
     DEFAULT_ALGORITHMS,
     PRIMARY_ALGORITHM,
     hash_file,
     primary_digest,
 )
-from sentinelforge.core.evidence import Evidence
-from sentinelforge.exceptions import EvidenceError
+from sentrytrace.core.evidence import Evidence
+from sentrytrace.exceptions import EvidenceError
 
 EMPTY_DIGESTS = {
     "md5": "d41d8cd98f00b204e9800998ecf8427e",

@@ -1,6 +1,6 @@
-"""SentinelForge: a security investigation and digital forensics platform.
+"""SentryTrace: a security investigation and digital forensics platform.
 
-SentinelForge inspects untrusted evidence (currently individual files) and
+SentryTrace inspects untrusted evidence (currently individual files) and
 produces a structured investigation result: identifying hashes, filesystem
 metadata, and rule-based findings with an explained severity.
 
