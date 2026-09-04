@@ -18,7 +18,10 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from sentinelforge import __version__
+from sentinelforge.analyzers.hashing import hash_file
+from sentinelforge.core.evidence import Evidence
 from sentinelforge.exceptions import SentinelForgeError
+from sentinelforge.reporting.console import render_sections
 from sentinelforge.utils.logging_config import configure_logging
 
 log = logging.getLogger(__name__)
@@ -84,6 +87,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="path to the file to analyse",
     )
+    analyze.add_argument(
+        "--follow-symlinks",
+        action="store_true",
+        help="analyse the target of a symbolic link instead of refusing it",
+    )
     analyze.set_defaults(handler=handle_analyze)
 
     return parser
@@ -92,12 +100,31 @@ def build_parser() -> argparse.ArgumentParser:
 def handle_analyze(args: argparse.Namespace) -> int:
     """Handle ``sentinelforge analyze <path>``.
 
-    Registered now so the command surface is visible in ``--help`` and covered
-    by tests. The implementation arrives with evidence validation and hashing.
+    Validate the path, run the analysers, print the result. Assembling the
+    sections here is temporary: it moves into the investigator once there is an
+    ``InvestigationResult`` for the analysers to contribute to.
     """
-    raise SentinelForgeError(
-        f"the 'analyze' command is not implemented yet (requested: {args.path})"
+    log.info("investigation started: %s", args.path)
+
+    evidence = Evidence.from_path(args.path, follow_symlinks=args.follow_symlinks)
+    digests = hash_file(evidence)
+
+    print(
+        render_sections(
+            {
+                "File Information": {
+                    "Name": evidence.name,
+                    "Path": str(evidence.path),
+                    "Extension": evidence.extension or "(none)",
+                    "Size": f"{evidence.size_bytes:,} bytes",
+                },
+                "Hashes": {name.upper(): digest for name, digest in digests.items()},
+            }
+        )
     )
+
+    log.info("investigation complete")
+    return EXIT_OK
 
 
 def main(argv: Sequence[str] | None = None) -> int:

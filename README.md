@@ -6,11 +6,10 @@ SentinelForge takes untrusted evidence, analyses it without ever running it, and
 produces a structured investigation result: identifying hashes, filesystem
 metadata, and rule-based findings with an explained severity.
 
-> **Status: pre-v0.1 — project foundation.**
-> The packaging, CLI skeleton, logging, and test harness are in place. The
-> analysis engine is being built feature by feature; `analyze` is registered but
-> not yet implemented. The roadmap below states plainly what exists and what
-> does not.
+> **Status: v0.1 in progress.**
+> `analyze` validates a file and reports its size and cryptographic hashes.
+> Filesystem metadata, heuristic findings, and JSON reports are still being
+> built. The roadmap below states plainly what exists and what does not.
 
 ---
 
@@ -54,15 +53,15 @@ src/sentinelforge/
 ├── cli.py               argument parsing and dispatch only
 ├── exceptions.py        errors SentinelForge raises on purpose
 ├── core/                what an investigation is
-│   ├── evidence.py      validated, untrusted-input intake        (planned)
+│   ├── evidence.py      validated, untrusted-input intake
 │   ├── models.py        Finding, Severity, InvestigationResult    (planned)
 │   └── investigator.py  orchestration                             (planned)
 ├── analyzers/           components that examine evidence
-│   ├── hashing.py       chunked MD5 / SHA-1 / SHA-256             (planned)
-│   ├── metadata.py      size, extension, timestamps               (planned)
+│   ├── hashing.py       chunked MD5 / SHA-1 / SHA-256
+│   ├── metadata.py      timestamps and filesystem detail          (planned)
 │   └── heuristics.py    rule-based suspicion analysis             (planned)
 ├── reporting/           rendering results
-│   ├── console.py       human-readable output                     (planned)
+│   ├── console.py       human-readable output
 │   └── json_report.py   machine-readable output                   (planned)
 └── utils/
     └── logging_config.py
@@ -114,11 +113,29 @@ sentinelforge --version
 python -m sentinelforge --help
 ```
 
-Once the engine lands:
+### Example investigation
 
-```bash
-sentinelforge analyze suspicious_file.exe
-sentinelforge -v analyze suspicious_file.exe
+```console
+$ sentinelforge analyze sample_evidence/invoice.pdf.exe
+File Information
+----------------
+  Name       invoice.pdf.exe
+  Path       /home/analyst/sample_evidence/invoice.pdf.exe
+  Extension  .exe
+  Size       16 bytes
+
+Hashes
+------
+  MD5     5587cb60514166ba7d3011dc5b562fb2
+  SHA1    fe13e893167324704a2203ccff1b0aa856ea9f67
+  SHA256  1d89e1c618418f7bafaa924f0cb9315c9c50ca9e7fe1b3055541e5a062f1b72c
+```
+
+Failures are reported as one line on stderr, with a non-zero exit code:
+
+```console
+$ sentinelforge analyze /etc
+ERROR sentinelforge.cli: /etc is a directory; SentinelForge analyses one file at a time
 ```
 
 Global options:
@@ -128,6 +145,9 @@ Global options:
 | `-v`, `--verbose` | `-v` for investigation progress, `-vv` for debug detail |
 | `-q`, `--quiet` | errors only |
 | `--version` | print the version and exit |
+
+`analyze` additionally accepts `--follow-symlinks`, which analyses a link's
+target instead of refusing it.
 
 Exit codes: `0` success, `1` an expected failure such as unreadable evidence,
 `2` a usage error.
@@ -158,7 +178,11 @@ Design constraints, not aspirations:
 - Analysed files are never executed, imported, or evaluated as code.
 - No file is ever opened with the operating system's default handler.
 - No subprocess is spawned with `shell=True`.
-- Paths are resolved and validated before use.
+- Paths are resolved and validated before use, in one module, at intake.
+- Symbolic links are refused unless explicitly followed, so the file named in a
+  report is always the file whose bytes were read.
+- Only regular files are accepted. A FIFO or character device would otherwise
+  block or stream forever and hang the investigation.
 - Evidence is never uploaded anywhere.
 - No administrator or root privileges are required.
 - Log output records facts *about* evidence (paths, sizes, digests) and never
@@ -176,7 +200,8 @@ be treated as untrusted data throughout.
 | Version | Scope | Status |
 | --- | --- | --- |
 | Foundation | Packaging, CLI skeleton, logging, tests, CI | Done |
-| v0.1 | File validation, hashing, metadata, heuristics, JSON report | In progress |
+| v0.1 | File validation and hashing | Done |
+| v0.1 | Metadata, heuristic findings, JSON report | In progress |
 | v0.2 | Magic bytes, MIME, entropy, strings, PE parsing, YARA | Planned |
 | v0.3 | Threat intelligence enrichment (VirusTotal, MalwareBazaar) | Planned |
 | v0.4 | Log investigation (auth logs, SSH, Windows events, web logs) | Planned |

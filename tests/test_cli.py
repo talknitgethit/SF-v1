@@ -51,20 +51,43 @@ def test_verbose_and_quiet_cannot_be_combined(run_cli) -> None:
     assert "not allowed with" in result.stderr
 
 
-def test_analyze_stub_fails_gracefully(run_cli) -> None:
-    """The unimplemented handler must produce a clean error, not a traceback."""
-    result = run_cli("analyze", "evidence.bin")
+def test_analyze_reports_hashes_and_file_information(run_cli, tmp_path) -> None:
+    evidence = tmp_path / "notes.txt"
+    evidence.write_bytes(b"hello")
+
+    result = run_cli("analyze", str(evidence))
+
+    assert result.exit_code == 0
+    assert "File Information" in result.stdout
+    assert "notes.txt" in result.stdout
+    assert "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824" in result.stdout
+
+
+def test_analyze_missing_file_fails_gracefully(run_cli, tmp_path) -> None:
+    """An unreadable path is an expected failure, not a traceback."""
+    result = run_cli("analyze", str(tmp_path / "does_not_exist.bin"))
 
     assert result.exit_code == EXIT_ERROR
-    assert "not implemented yet" in result.stderr
-    assert "evidence.bin" in result.stderr
+    assert "no such file" in result.stderr
+    assert "does_not_exist.bin" in result.stderr
 
 
-def test_errors_never_contaminate_stdout(run_cli) -> None:
+def test_errors_never_contaminate_stdout(run_cli, tmp_path) -> None:
     """stdout is reserved for report output so it stays machine-parseable."""
-    result = run_cli("analyze", "evidence.bin")
+    result = run_cli("analyze", str(tmp_path / "does_not_exist.bin"))
 
     assert result.stdout == ""
+
+
+def test_logging_never_contaminates_stdout(run_cli, tmp_path) -> None:
+    """Verbose progress logging must stay on stderr, even at -vv."""
+    evidence = tmp_path / "notes.txt"
+    evidence.write_bytes(b"hello")
+
+    result = run_cli("-vv", "analyze", str(evidence))
+
+    assert "hashing" in result.stderr
+    assert "hashing" not in result.stdout
 
 
 def test_unexpected_exceptions_are_not_swallowed(monkeypatch, run_cli) -> None:
