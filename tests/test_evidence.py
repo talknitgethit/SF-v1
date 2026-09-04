@@ -41,8 +41,11 @@ class TestAcceptance:
         assert evidence.path == sample_file.resolve()
 
     def test_traversal_segments_are_collapsed(self, sample_file: Path) -> None:
+        # Create "sub" itself, not "sub/..". The latter asks the OS to make a
+        # directory named ".." inside a directory that does not exist: Windows
+        # collapses it lexically and silently succeeds, POSIX raises ENOENT.
+        (sample_file.parent / "sub").mkdir(exist_ok=True)
         awkward = sample_file.parent / "sub" / ".." / sample_file.name
-        awkward.parent.mkdir(exist_ok=True)
 
         evidence = Evidence.from_path(awkward)
 
